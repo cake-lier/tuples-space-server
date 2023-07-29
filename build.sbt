@@ -14,12 +14,14 @@ ThisBuild / scalafixDependencies ++= Seq(
 
 ThisBuild / idePackagePrefix := Some("io.github.cakelier")
 
+ThisBuild / autoAPIMappings := true
+
 lazy val root = project
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
   .enablePlugins(DockerPlugin)
   .settings(
-    name := "scala-app-template",
+    name := "tuples-space-server",
     scalacOptions ++= Seq(
       "-deprecation",
       "-Xfatal-warnings"
@@ -28,7 +30,17 @@ lazy val root = project
     semanticdbVersion := scalafixSemanticdb.revision,
     libraryDependencies ++= Seq(
       scalactic,
-      scalatest
+      scalatest,
+      circeCore,
+      circeGeneric,
+      circeParser,
+      akka,
+      akkaStream,
+      akkaHttp,
+      akkaStreamTestkit,
+      akkaHttpTestkit,
+      akkaTestkit,
+      core
     ),
     wartremoverErrors ++= Warts.allBut(Wart.ImplicitParameter),
     version := "0.0.0",
@@ -44,6 +56,6 @@ lazy val root = project
     docker / imageNames := Seq(ImageName(
       namespace = Some("matteocastellucci3"),
       repository = name.value,
-      tag = Some("latest")
+      tag = Some(version.value)
     ))
   )

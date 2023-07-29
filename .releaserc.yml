@@ -29,8 +29,8 @@ plugins:
           countMatches: true
         - files:
             - package-lock.json
-          from: '\"name\": \"scala-app-template\",\n  \"version\": \".*\"'
-          to: "\"name\": \"scala-app-template\",\n  \"version\": \"${nextRelease.version}\""
+          from: '\"name\": \"tuples-space-server\",\n  \"version\": \".*\"'
+          to: "\"name\": \"tuples-space-server\",\n  \"version\": \"${nextRelease.version}\""
           results:
             - file: package-lock.json
               hasChanged: true
@@ -39,8 +39,8 @@ plugins:
           countMatches: true
         - files:
             - package-lock.json
-          from: '\"name\": \"scala-app-template\",\n      \"version\": \".*\"'
-          to: "\"name\": \"scala-app-template\",\n      \"version\": \"${nextRelease.version}\""
+          from: '\"name\": \"tuples-space-server\",\n      \"version\": \".*\"'
+          to: "\"name\": \"tuples-space-server\",\n      \"version\": \"${nextRelease.version}\""
           results:
             - file: package-lock.json
               hasChanged: true

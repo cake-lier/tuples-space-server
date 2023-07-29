@@ -20,17 +20,14 @@
  */
 
 package io.github.cakelier
+package tuples.space.server.response
 
-import org.scalatest.funspec.AnyFunSpec
-import org.scalatest.matchers.should.Matchers.*
+/** The enum representing all the different types of operations that can receive a result using a [[TemplateSeqTupleResponse]]. */
+private[client] enum TemplateSeqTupleResponseType {
 
-class Test extends AnyFunSpec {
+  /** The enum instance representing the "inAll" operation. */
+  case InAll extends TemplateSeqTupleResponseType
 
-  describe("A Set") {
-    describe("when empty") {
-      it("should have size 0") {
-        Set.empty[Int].size shouldBe 0
-      }
-    }
-  }
+    /** The enum instance representing the "rdAll" operation. */
+  case RdAll extends TemplateSeqTupleResponseType
 }

@@ -1,6 +1,10 @@
-FROM eclipse-temurin:17.0.8_7-jre
+FROM eclipse-temurin:19.0.2_7-jre
+
+ENV TUPLES_SPACE_HOST_NAME=0.0.0.0
+ENV TUPLES_SPACE_PORT_NUMBER=80
+ENV TUPLES_SPACE_SERVICE_PATH=tuplespace
 
 RUN mkdir /opt/app
-COPY application.conf /opt/app/
 COPY target/scala-3.3.0/main.jar /opt/app/
-CMD ["java", "-jar", "/opt/app/main.jar", "/opt/app/application.conf"]
+EXPOSE TUPLES_SPACE_PORT_NUMBER
+CMD ["java", "-jar", "/opt/app/main.jar"]

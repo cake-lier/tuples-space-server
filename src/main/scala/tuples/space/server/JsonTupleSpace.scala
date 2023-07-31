@@ -22,12 +22,13 @@
 package io.github.cakelier
 package tuples.space.server
 
-import tuples.space.*
-
 import java.util.UUID
-import scala.annotation.tailrec
-import scala.concurrent.{Future, Promise}
 
+import scala.annotation.tailrec
+import scala.concurrent.Future
+import scala.concurrent.Promise
+
+import tuples.space.*
 import AnyOps.===
 
 /** A coordination medium to be used to exchange pieces of information and coordinate with other entities, implemented to be used
@@ -41,7 +42,7 @@ import AnyOps.===
   * data structure, the execution can be paused until the result is ready. Matching a tuple means to have a template to be used by
   * the operation for matching, which in this implementation is a [[JsonTemplate]].
   */
-trait JsonTupleSpace {
+private[server] trait JsonTupleSpace {
 
   /** The operation for inserting a [[JsonTuple]] into this [[JsonTupleSpace]]. This is one of the core operations on the tuple
     * space, along with "in" and "rd". Differently from these two, this operation is not suspensive: it completes right away,

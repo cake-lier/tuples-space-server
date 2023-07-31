@@ -54,7 +54,7 @@ import tuples.space.server.request.RequestDeserializer.given
 
 /** The routes of the webservice which handles the websocket connections to the tuple space server. */
 @SuppressWarnings(Array("org.wartremover.warts.Null", "scalafix:DisableSyntax.null"))
-object TupleSpaceRoute {
+private[server] object TupleSpaceRoute {
 
   /** Creates a new [[Route]] object representing the routes of the webservice which is the server of the tuple space. The URL
     * path to the webservice must be given, along with the actor handling the requests and the [[ActorSystem]] on which executing

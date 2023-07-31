@@ -22,11 +22,12 @@
 package io.github.cakelier
 package tuples.space.server.response
 
+import io.circe.Encoder
+import io.circe.Json
+import io.circe.syntax.*
+
 import tuples.space.*
 import tuples.space.JsonSerializable.given
-
-import io.circe.{Encoder, Json}
-import io.circe.syntax.*
 
 /** This object contains all serializers for the [[Response]] sub-types. */
 private[server] object ResponseSerializer {
@@ -105,7 +106,7 @@ private[server] object ResponseSerializer {
     /* The Encoder given instance for the ConnectionSuccessResponse trait. */
   private given Encoder[MergeSuccessResponse] = r => Json.obj("oldClientId" -> r.oldClientId.asJson)
 
-    /** The [[Encoder]] given instance for the general [[Response]] trait, working for all of its sub-types. */
+  /** The [[Encoder]] given instance for the general [[Response]] trait, working for all of its sub-types. */
   given Encoder[Response] = {
     case r: TupleResponse => r.asJson
     case r: SeqTupleResponse => r.asJson

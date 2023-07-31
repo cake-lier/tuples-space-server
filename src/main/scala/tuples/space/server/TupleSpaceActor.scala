@@ -23,21 +23,24 @@ package io.github.cakelier
 package tuples.space.server
 
 import java.util.UUID
+
 import scala.annotation.tailrec
+import scala.concurrent.ExecutionContext
+
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.scaladsl.Behaviors
+
 import AnyOps.*
 import tuples.space.*
 import tuples.space.server.request.*
 import tuples.space.server.response.*
 
-import scala.concurrent.ExecutionContext
-
 /** The actor representing the handler of the tuple space, managing all operations, alongside the client management and the id
   * assignment.
   */
-object TupleSpaceActor {
+private[server] object TupleSpaceActor {
 
   /* The main behavior of this actor. */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))

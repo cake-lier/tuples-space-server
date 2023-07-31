@@ -24,7 +24,6 @@ package tuples.space.server.request
 
 import io.circe.Decoder
 import io.circe.DecodingFailure
-import io.circe.Decoder
 import io.circe.Json
 import io.circe.syntax.*
 
@@ -52,7 +51,7 @@ private[server] object RequestDeserializer {
         )
     } yield TupleRequest(content)
 
-  /* The Decoder given instance for the SeqTupleRequest trait. */
+    /* The Decoder given instance for the SeqTupleRequest trait. */
   private given Decoder[SeqTupleRequest] = c =>
     for {
       content <- c.downField("content").as[Seq[JsonTuple]]
@@ -68,7 +67,7 @@ private[server] object RequestDeserializer {
         )
     } yield SeqTupleRequest(content)
 
-  /* The Decoder given instance for the TemplateRequest trait. */
+    /* The Decoder given instance for the TemplateRequest trait. */
   private given Decoder[TemplateRequest] = c =>
     for {
       content <- c.downField("content").as[JsonTemplate]
@@ -91,7 +90,7 @@ private[server] object RequestDeserializer {
       }
     } yield TemplateRequest(content, tpe)
 
-   /* The Decoder given instance for the MergeRequest trait. */
+    /* The Decoder given instance for the MergeRequest trait. */
   private given Decoder[MergeRequest] = Decoder.forProduct1("oldClientId")(MergeRequest.apply)
 
   /** The [[Decoder]] given instance for the general [[Request]] trait, working for all of its sub-types. */

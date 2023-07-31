@@ -52,7 +52,7 @@ private[server] object Request {
     */
   sealed trait TupleRequest extends Request {
 
-    /** Returns the content of this request, which is a single [[JsonTuple]]. */
+      /** Returns the content of this request, which is a single [[JsonTuple]]. */
     val content: JsonTuple
   }
 
@@ -62,13 +62,13 @@ private[server] object Request {
     /* Implementation of the TupleRequest trait. */
     final private case class TupleRequestImpl(content: JsonTuple) extends TupleRequest
 
-    /** Creates a new instance of the [[TupleRequest]] trait, given the content of the request.
-      *
-      * @param content
-      *   the [[JsonTuple]] that makes the content of the request
-      * @return
-      *   a new [[TupleRequest]] instance
-      */
+      /** Creates a new instance of the [[TupleRequest]] trait, given the content of the request.
+        *
+        * @param content
+        *   the [[JsonTuple]] that makes the content of the request
+        * @return
+        *   a new [[TupleRequest]] instance
+        */
     def apply(content: JsonTuple): TupleRequest = TupleRequestImpl(content)
   }
 
@@ -78,7 +78,7 @@ private[server] object Request {
     */
   sealed trait SeqTupleRequest extends Request {
 
-    /** Returns the content of this request, which is a [[Seq]] of [[JsonTuple]]s. */
+      /** Returns the content of this request, which is a [[Seq]] of [[JsonTuple]]s. */
     val content: Seq[JsonTuple]
   }
 
@@ -144,7 +144,7 @@ private[server] object Request {
     */
   sealed trait MergeRequest extends Request {
 
-    /** Returns the client id of the client that sent this [[Request]] before it was forced to disconnect. */
+      /** Returns the client id of the client that sent this [[Request]] before it was forced to disconnect. */
     val oldClientId: UUID
   }
 
@@ -154,8 +154,8 @@ private[server] object Request {
     /* Implementation of the MergeRequest trait. */
     final private case class MergeRequestImpl(oldClientId: UUID) extends MergeRequest
 
-      /** Creates a new instance of the [[MergeRequest]] trait, given the id before the disconnection of the
-        * client that sent this [[MergeRequest]].
+      /** Creates a new instance of the [[MergeRequest]] trait, given the id before the disconnection of the client that sent this
+        * [[MergeRequest]].
         *
         * @param oldClientId
         *   the id of the client that sent this [[MergeRequest]] before it was forced to disconnect

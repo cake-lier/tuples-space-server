@@ -329,9 +329,9 @@ private[server] object Response {
     */
   sealed trait MergeSuccessResponse extends Response {
 
-    /** Returns the client id of the client that sent the [[Request]] to change its previously current id into its old one before
-      * it was forced to disconnect.
-      */
+      /** Returns the client id of the client that sent the [[Request]] to change its previously current id into its old one
+        * before it was forced to disconnect.
+        */
     val oldClientId: UUID
   }
 
@@ -341,8 +341,8 @@ private[server] object Response {
     /* Implementation of the MergeSuccessResponse trait. */
     final private case class MergeSuccessResponseImpl(oldClientId: UUID) extends MergeSuccessResponse
 
-      /** Creates a new instance of the [[MergeSuccessResponse]] trait, given the id before the disconnection
-        * of the client that sent the [[MergeRequest]] associated with this [[MergeSuccessResponse]].
+      /** Creates a new instance of the [[MergeSuccessResponse]] trait, given the id before the disconnection of the client that
+        * sent the [[MergeRequest]] associated with this [[MergeSuccessResponse]].
         *
         * @param oldClientId
         *   the id of the client that sent the associated [[MergeRequest]] before it was forced to disconnect

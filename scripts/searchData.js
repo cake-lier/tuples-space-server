@@ -1,0 +1,8 @@
+pages = [{"l":"index.html#","e":false,"i":"","n":"tuples-space-server","t":"tuples-space-server","d":"","k":"static","x":""},
+{"l":"io/github/cakelier/tuples/space/server.html#","e":false,"i":"","n":"io.github.cakelier.tuples.space.server","t":"io.github.cakelier.tuples.space.server","d":"","k":"package","x":""},
+{"l":"io/github/cakelier/tuples/space/server.html#main-94c","e":false,"i":"","n":"main","t":"main(): Unit","d":"io.github.cakelier.tuples.space.server","k":"def","x":""},
+{"l":"io/github/cakelier/tuples/space/server/request.html#","e":false,"i":"","n":"io.github.cakelier.tuples.space.server.request","t":"io.github.cakelier.tuples.space.server.request","d":"","k":"package","x":""},
+{"l":"io/github/cakelier/tuples/space/server/response.html#","e":false,"i":"","n":"io.github.cakelier.tuples.space.server.response","t":"io.github.cakelier.tuples.space.server.response","d":"","k":"package","x":""},
+{"l":"io/github/cakelier/tuples/space/server/JsonTupleSpace$.html#","e":false,"i":"","n":"JsonTupleSpace","t":"JsonTupleSpace","d":"io.github.cakelier.tuples.space.server","k":"object","x":""},
+{"l":"io/github/cakelier/tuples/space/server/JsonTupleSpace$.html#apply-72f","e":false,"i":"","n":"apply","t":"apply(): JsonTupleSpace","d":"io.github.cakelier.tuples.space.server.JsonTupleSpace","k":"def","x":""},
+{"l":"io/github/cakelier/tuples/space/server/main.html#","e":false,"i":"","n":"main","t":"main","d":"io.github.cakelier.tuples.space.server","k":"class","x":""}];

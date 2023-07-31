@@ -57,10 +57,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
-
+        
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
         responseProbe.expectNoMessage()
 
@@ -73,10 +72,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
 
@@ -89,10 +87,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.No(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateResponse(template))
 
@@ -105,10 +102,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
-        val tupleUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
 
@@ -122,15 +118,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple))
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
@@ -146,15 +140,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple))
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
@@ -170,15 +162,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.No(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
@@ -194,16 +184,14 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         responseProbe.expectMessage(TupleResponse(tuple))
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple))
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
@@ -219,15 +207,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple))
@@ -244,15 +230,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.No(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
@@ -268,10 +252,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Inp(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, None))
 
@@ -284,10 +267,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rdp(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, None))
 
@@ -300,10 +282,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Nop(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateBooleanResponse(template, true))
 
@@ -317,15 +298,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Inp(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, Some(tuple)))
         tupleSpace ! TupleSpaceActorCommand.Rdp(template, responseProbe.ref)
@@ -341,15 +320,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rdp(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, Some(tuple)))
         tupleSpace ! TupleSpaceActorCommand.Rdp(template, responseProbe.ref)
@@ -365,15 +342,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Nop(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateBooleanResponse(template, false))
         tupleSpace ! TupleSpaceActorCommand.Rdp(template, responseProbe.ref)
@@ -388,10 +363,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.InAll(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq.empty))
 
@@ -404,10 +378,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.RdAll(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq.empty))
 
@@ -421,15 +394,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.InAll(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq(tuple)))
         tupleSpace ! TupleSpaceActorCommand.RdAll(template, responseProbe.ref)
@@ -445,15 +416,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.RdAll(template, responseProbe.ref)
         responseProbe.expectMessage(TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq(tuple)))
         tupleSpace ! TupleSpaceActorCommand.RdAll(template, responseProbe.ref)
@@ -468,10 +437,9 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
-        val tupleUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.OutAll(Seq(tuple), responseProbe.ref)
         responseProbe.expectMessage(SeqTupleResponse(Seq(tuple)))
 
@@ -485,15 +453,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.OutAll(Seq(tuple), responseProbe.ref)
         responseProbe.expectMessage(SeqTupleResponse(Seq(tuple)))
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple))
@@ -510,15 +476,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.OutAll(Seq(tuple), responseProbe.ref)
         responseProbe.expectMessage(SeqTupleResponse(Seq(tuple)))
         responseProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple))
@@ -535,16 +499,14 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
 
@@ -558,15 +520,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
@@ -585,16 +545,14 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.No(template, responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.No(template, responseProbe.ref)
@@ -612,15 +570,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.Inp(template, responseProbe.ref)
         responseProbe.expectNoMessage()
@@ -641,15 +597,13 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Out(tuple, responseProbe.ref)
         responseProbe.expectMessage(TupleResponse(tuple))
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.RdAll(template, responseProbe.ref)
         responseProbe.expectNoMessage()
@@ -668,16 +622,14 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val responseProbe = testKit.createTestProbe[Response]()
         val tuple = JsonTuple(1, "Example")
         val template = complete(int, string)
-        val tupleUUID = UUID.randomUUID()
-        val templateUUID = UUID.randomUUID()
 
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(tupleUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Exit(success = true, responseProbe.ref)
         tupleSpace ! TupleSpaceActorCommand.OutAll(Seq(tuple), responseProbe.ref)
         responseProbe.expectNoMessage()
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
-        responseProbe.expectMessage(ConnectionSuccessResponse(templateUUID))
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.Rd(template, responseProbe.ref)
         responseProbe.expectNoMessage()
 

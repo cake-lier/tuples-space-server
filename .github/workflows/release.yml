@@ -21,11 +21,18 @@ jobs:
   test:
     name: Test
     uses: ./.github/workflows/test.yml
+    secrets: inherit
   release:
     name: Release on GitHub
     runs-on: ubuntu-20.04
     env:
       TERM: dumb
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    needs:
+      - test
     steps:
       - name: Checkout
         uses: actions/checkout@v3

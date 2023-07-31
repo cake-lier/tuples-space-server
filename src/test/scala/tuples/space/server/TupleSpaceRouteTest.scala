@@ -22,18 +22,21 @@
 package io.github.cakelier
 package tuples.space.server
 
-import io.circe.syntax.*
+import java.util.UUID
+
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
-import akka.http.scaladsl.testkit.{ScalatestRouteTest, WSProbe}
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import akka.http.scaladsl.testkit.WSProbe
+import io.circe.syntax.*
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers.*
+
 import tuples.space.*
 import tuples.space.server.request.*
-import tuples.space.server.request.Serializers.given
+import tuples.space.server.request.RequestSerializer.given
 import tuples.space.server.response.*
-import tuples.space.server.response.Serializers.given
-
-import java.util.UUID
+import tuples.space.server.response.ResponseSerializer.given
 
 class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with BeforeAndAfterAll {
 
@@ -51,10 +54,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TupleRequest(tuple).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Out(enterMessage.id, tuple))
+          wsProbe.sendMessage((TupleRequest(tuple): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.Out]
+          message.tuple shouldBe tuple
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -64,10 +69,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.Rd).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Rd(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.Rd): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.Rd]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -77,10 +84,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.In).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.In(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.In): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.In]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -90,10 +99,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.No).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.No(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.No): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.No]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -103,10 +114,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.Inp).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Inp(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.Inp): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.Inp]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -116,10 +129,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.Rdp).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Rdp(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.Rdp): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.Rdp]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -129,10 +144,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.Nop).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Nop(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.Nop): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.Nop]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -142,10 +159,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.InAll).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.InAll(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.InAll): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.InAll]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -155,10 +174,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(TemplateRequest(template, TemplateRequestType.RdAll).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.RdAll(enterMessage.id, template))
+          wsProbe.sendMessage((TemplateRequest(template, TemplateRequestType.RdAll): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.RdAll]
+          message.template shouldBe template
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -168,10 +189,12 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(SeqTupleRequest(Seq(tuple)).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.OutAll(enterMessage.id, Seq(tuple)))
+          wsProbe.sendMessage((SeqTupleRequest(Seq(tuple)): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.OutAll]
+          message.tuples shouldBe Seq(tuple)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -182,12 +205,15 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val oldUUID = UUID.randomUUID()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          wsProbe.sendMessage(MergeRequest(enterMessage.id, oldUUID).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.MergeIds(enterMessage.id, oldUUID))
-          wsProbe.sendMessage(TupleRequest(tuple).asJson.noSpaces)
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Out(oldUUID, tuple))
+          wsProbe.sendMessage((MergeRequest(oldUUID): Request).asJson.noSpaces)
+          val message = tupleSpace.expectMessageType[TupleSpaceActorCommand.MergeIds]
+          message.oldId shouldBe oldUUID
+          wsProbe.sendMessage((TupleRequest(tuple): Request).asJson.noSpaces)
+          val outMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Out]
+          outMessage.tuple shouldBe tuple
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -197,10 +223,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TupleResponse(tuple)
-          wsProbe.expectMessage(TupleResponse(tuple).asJson.noSpaces)
+          enterMessage.replyTo ! TupleResponse(tuple)
+          wsProbe.expectMessage((TupleResponse(tuple): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -210,10 +237,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple)
-          wsProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple).asJson.noSpaces)
+          enterMessage.replyTo ! TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple)
+          wsProbe.expectMessage((TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -223,10 +251,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple)
-          wsProbe.expectMessage(TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple).asJson.noSpaces)
+          enterMessage.replyTo ! TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple)
+          wsProbe.expectMessage((TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -236,10 +265,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateResponse(template)
-          wsProbe.expectMessage(TemplateResponse(template).asJson.noSpaces)
+          enterMessage.replyTo ! TemplateResponse(template)
+          wsProbe.expectMessage((TemplateResponse(template): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -249,12 +279,13 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, Some(tuple))
+          enterMessage.replyTo ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, Some(tuple))
           wsProbe.expectMessage(
-            TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, Some(tuple)).asJson.noSpaces
+            (TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, Some(tuple)): Response).asJson.noSpaces
           )
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -264,12 +295,13 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, Some(tuple))
+          enterMessage.replyTo ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, Some(tuple))
           wsProbe.expectMessage(
-            TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, Some(tuple)).asJson.noSpaces
+            (TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, Some(tuple)): Response).asJson.noSpaces
           )
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -279,10 +311,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! SeqTupleResponse(Seq(tuple))
-          wsProbe.expectMessage(SeqTupleResponse(Seq(tuple)).asJson.noSpaces)
+          enterMessage.replyTo ! SeqTupleResponse(Seq(tuple))
+          wsProbe.expectMessage((SeqTupleResponse(Seq(tuple)): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -292,12 +325,13 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq(tuple))
+          enterMessage.replyTo ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq(tuple))
           wsProbe.expectMessage(
-            TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq(tuple)).asJson.noSpaces
+            (TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, Seq(tuple)): Response).asJson.noSpaces
           )
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -307,12 +341,13 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq(tuple))
+          enterMessage.replyTo ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq(tuple))
           wsProbe.expectMessage(
-            TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq(tuple)).asJson.noSpaces
+            (TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, Seq(tuple)): Response).asJson.noSpaces
           )
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -322,23 +357,26 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! TemplateBooleanResponse(template, true)
-          wsProbe.expectMessage(TemplateBooleanResponse(template, true).asJson.noSpaces)
+          enterMessage.replyTo ! TemplateBooleanResponse(template, true)
+          wsProbe.expectMessage((TemplateBooleanResponse(template, true): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
 
     describe("when a connection success response is needed") {
       it("should send it") {
+        val id = UUID.randomUUID()
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! ConnectionSuccessResponse(enterMessage.id)
-          wsProbe.expectMessage(ConnectionSuccessResponse(enterMessage.id).asJson.noSpaces)
+          enterMessage.replyTo ! ConnectionSuccessResponse(id)
+          wsProbe.expectMessage((ConnectionSuccessResponse(id): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }
@@ -349,10 +387,11 @@ class TupleSpaceRouteTest extends AnyFunSpec with ScalatestRouteTest with Before
         val wsProbe: WSProbe = WSProbe()
         WS("/tuples", wsProbe.flow) ~> route ~> check {
           val enterMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Enter]
-          enterMessage.actor ! MergeSuccessResponse(enterMessage.id, oldClientId)
-          wsProbe.expectMessage(MergeSuccessResponse(enterMessage.id, oldClientId).asJson.noSpaces)
+          enterMessage.replyTo ! MergeSuccessResponse(oldClientId)
+          wsProbe.expectMessage((MergeSuccessResponse(oldClientId): Response).asJson.noSpaces)
           wsProbe.sendCompletion()
-          tupleSpace.expectMessage(TupleSpaceActorCommand.Exit(enterMessage.id, success = true))
+          val exitMessage = tupleSpace.expectMessageType[TupleSpaceActorCommand.Exit]
+          exitMessage.success shouldBe true
         }
       }
     }

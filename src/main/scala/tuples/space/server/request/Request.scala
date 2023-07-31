@@ -22,11 +22,15 @@
 package io.github.cakelier
 package tuples.space.server.request
 
-import io.circe.syntax.*
-import io.circe.{Decoder, DecodingFailure, Encoder, Json}
-import tuples.space.*
-
 import java.util.UUID
+
+import io.circe.Decoder
+import io.circe.DecodingFailure
+import io.circe.Encoder
+import io.circe.Json
+import io.circe.syntax.*
+
+import tuples.space.*
 
 /** A request that a [[io.github.cakelier.tuples.space.client.JsonTupleSpace]] can make to its server.
   *
@@ -48,7 +52,7 @@ private[server] object Request {
     */
   sealed trait TupleRequest extends Request {
 
-      /** Returns the content of this request, which is a single [[JsonTuple]]. */
+    /** Returns the content of this request, which is a single [[JsonTuple]]. */
     val content: JsonTuple
   }
 
@@ -58,13 +62,13 @@ private[server] object Request {
     /* Implementation of the TupleRequest trait. */
     final private case class TupleRequestImpl(content: JsonTuple) extends TupleRequest
 
-      /** Creates a new instance of the [[TupleRequest]] trait, given the content of the request.
-        *
-        * @param content
-        *   the [[JsonTuple]] that makes the content of the request
-        * @return
-        *   a new [[TupleRequest]] instance
-        */
+    /** Creates a new instance of the [[TupleRequest]] trait, given the content of the request.
+      *
+      * @param content
+      *   the [[JsonTuple]] that makes the content of the request
+      * @return
+      *   a new [[TupleRequest]] instance
+      */
     def apply(content: JsonTuple): TupleRequest = TupleRequestImpl(content)
   }
 
@@ -74,7 +78,7 @@ private[server] object Request {
     */
   sealed trait SeqTupleRequest extends Request {
 
-      /** Returns the content of this request, which is a [[Seq]] of [[JsonTuple]]s. */
+    /** Returns the content of this request, which is a [[Seq]] of [[JsonTuple]]s. */
     val content: Seq[JsonTuple]
   }
 
@@ -140,9 +144,6 @@ private[server] object Request {
     */
   sealed trait MergeRequest extends Request {
 
-      /** Returns the current client id of the client that sent this [[Request]]. */
-    val clientId: UUID
-
     /** Returns the client id of the client that sent this [[Request]] before it was forced to disconnect. */
     val oldClientId: UUID
   }
@@ -151,19 +152,17 @@ private[server] object Request {
   object MergeRequest {
 
     /* Implementation of the MergeRequest trait. */
-    final private case class MergeRequestImpl(clientId: UUID, oldClientId: UUID) extends MergeRequest
+    final private case class MergeRequestImpl(oldClientId: UUID) extends MergeRequest
 
-      /** Creates a new instance of the [[MergeRequest]] trait, given the current id and the id before the disconnection of the
+      /** Creates a new instance of the [[MergeRequest]] trait, given the id before the disconnection of the
         * client that sent this [[MergeRequest]].
         *
-        * @param clientId
-        *   the current id of the client that sent this [[MergeRequest]]
         * @param oldClientId
         *   the id of the client that sent this [[MergeRequest]] before it was forced to disconnect
         * @return
         *   a new [[MergeRequest]] instance
         */
-    def apply(clientId: UUID, oldClientId: UUID): MergeRequest = MergeRequestImpl(clientId, oldClientId)
+    def apply(oldClientId: UUID): MergeRequest = MergeRequestImpl(oldClientId)
   }
 }
 

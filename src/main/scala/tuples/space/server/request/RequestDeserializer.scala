@@ -22,23 +22,22 @@
 package io.github.cakelier
 package tuples.space.server.request
 
+import io.circe.Decoder
+import io.circe.DecodingFailure
+import io.circe.Decoder
+import io.circe.Json
+import io.circe.syntax.*
+
 import AnyOps.*
 import tuples.space.*
 import tuples.space.JsonSerializable.given
 import tuples.space.server.request.*
 
-import io.circe.syntax.*
-import io.circe.{Decoder, DecodingFailure, Encoder, Json}
+/** This object contains all deserializers for the [[Request]] sub-types. */
+private[server] object RequestDeserializer {
 
-private[server] object RequestSerializer {
-
-  given Encoder[TupleRequest] = r =>
-    Json.obj(
-      "content" -> r.content.asJson,
-      "type" -> "out".asJson
-    )
-
-  given Decoder[TupleRequest] = c =>
+  /* The Decoder given instance for the TupleRequest trait. */
+  private given Decoder[TupleRequest] = c =>
     for {
       content <- c.downField("content").as[JsonTuple]
       - <- c
@@ -53,13 +52,8 @@ private[server] object RequestSerializer {
         )
     } yield TupleRequest(content)
 
-  given Encoder[SeqTupleRequest] = r =>
-    Json.obj(
-      "content" -> r.content.asJson,
-      "type" -> "outAll".asJson
-    )
-
-  given Decoder[SeqTupleRequest] = c =>
+  /* The Decoder given instance for the SeqTupleRequest trait. */
+  private given Decoder[SeqTupleRequest] = c =>
     for {
       content <- c.downField("content").as[Seq[JsonTuple]]
       - <- c
@@ -74,22 +68,8 @@ private[server] object RequestSerializer {
         )
     } yield SeqTupleRequest(content)
 
-  given Encoder[TemplateRequest] = r =>
-    Json.obj(
-      "content" -> r.content.asJson,
-      "type" -> (r.tpe match {
-        case TemplateRequestType.In => "in"
-        case TemplateRequestType.Rd => "rd"
-        case TemplateRequestType.No => "no"
-        case TemplateRequestType.Inp => "inp"
-        case TemplateRequestType.Rdp => "rdp"
-        case TemplateRequestType.Nop => "nop"
-        case TemplateRequestType.InAll => "inAll"
-        case TemplateRequestType.RdAll => "rdAll"
-      }).asJson
-    )
-
-  given Decoder[TemplateRequest] = c =>
+  /* The Decoder given instance for the TemplateRequest trait. */
+  private given Decoder[TemplateRequest] = c =>
     for {
       content <- c.downField("content").as[JsonTemplate]
       tpe <- c.downField("type").as[String].flatMap {
@@ -111,21 +91,10 @@ private[server] object RequestSerializer {
       }
     } yield TemplateRequest(content, tpe)
 
-  given Encoder[MergeRequest] = r =>
-    Json.obj(
-      "clientId" -> r.clientId.asJson,
-      "oldClientId" -> r.oldClientId.asJson
-    )
+   /* The Decoder given instance for the MergeRequest trait. */
+  private given Decoder[MergeRequest] = Decoder.forProduct1("oldClientId")(MergeRequest.apply)
 
-  given Decoder[MergeRequest] = Decoder.forProduct2("clientId", "oldClientId")(MergeRequest.apply)
-
-  given Encoder[Request] = {
-    case r: TupleRequest => r.asJson
-    case r: TemplateRequest => r.asJson
-    case r: SeqTupleRequest => r.asJson
-    case r: MergeRequest => r.asJson
-  }
-
+  /** The [[Decoder]] given instance for the general [[Request]] trait, working for all of its sub-types. */
   given Decoder[Request] = r =>
     r.as[TupleRequest]
       .orElse[DecodingFailure, Request](r.as[SeqTupleRequest])

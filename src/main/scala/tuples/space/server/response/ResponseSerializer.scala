@@ -22,62 +22,33 @@
 package io.github.cakelier
 package tuples.space.server.response
 
-import AnyOps.*
 import tuples.space.*
 import tuples.space.JsonSerializable.given
 
+import io.circe.{Encoder, Json}
 import io.circe.syntax.*
-import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 
-object Serializers {
+/** This object contains all serializers for the [[Response]] sub-types. */
+private[server] object ResponseSerializer {
 
-  given Encoder[TupleResponse] = r =>
+  /* The Encoder given instance for the TupleResponse trait. */
+  private given Encoder[TupleResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> "out".asJson,
       "content" -> ().asJson
     )
 
-  given Decoder[TupleResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTuple]
-      _ <- c
-        .downField("type")
-        .as[String]
-        .filterOrElse(
-          _ === "out",
-          DecodingFailure(
-            DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-            c.downField("type")
-          )
-        )
-      _ <- c.downField("content").as[Unit]
-    } yield TupleResponse(request)
-
-  given Encoder[SeqTupleResponse] = r =>
+    /* The Encoder given instance for the SeqTupleResponse trait. */
+  private given Encoder[SeqTupleResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> "outAll".asJson,
       "content" -> ().asJson
     )
 
-  given Decoder[SeqTupleResponse] = c =>
-    for {
-      request <- c.downField("request").as[Seq[JsonTuple]]
-      _ <- c
-        .downField("type")
-        .as[String]
-        .filterOrElse(
-          _ === "outAll",
-          DecodingFailure(
-            DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-            c.downField("type")
-          )
-        )
-      _ <- c.downField("content").as[Unit]
-    } yield SeqTupleResponse(request)
-
-  given Encoder[TemplateTupleResponse] = r =>
+    /* The Encoder given instance for the TemplateTupleResponse trait. */
+  private given Encoder[TemplateTupleResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> (r.tpe match {
@@ -87,24 +58,8 @@ object Serializers {
       "content" -> r.content.asJson
     )
 
-  given Decoder[TemplateTupleResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTemplate]
-      tpe <- c.downField("type").as[String].flatMap {
-        case "in" => Right[DecodingFailure, TemplateTupleResponseType](TemplateTupleResponseType.In)
-        case "rd" => Right[DecodingFailure, TemplateTupleResponseType](TemplateTupleResponseType.Rd)
-        case _ =>
-          Left[DecodingFailure, TemplateTupleResponseType](
-            DecodingFailure(
-              DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-              c.downField("type")
-            )
-          )
-      }
-      content <- c.downField("content").as[JsonTuple]
-    } yield TemplateTupleResponse(request, tpe, content)
-
-  given Encoder[TemplateMaybeTupleResponse] = r =>
+    /* The Encoder given instance for the TemplateMaybeTupleResponse trait. */
+  private given Encoder[TemplateMaybeTupleResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> (r.tpe match {
@@ -114,24 +69,8 @@ object Serializers {
       "content" -> r.content.asJson
     )
 
-  given Decoder[TemplateMaybeTupleResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTemplate]
-      tpe <- c.downField("type").as[String].flatMap {
-        case "inp" => Right[DecodingFailure, TemplateMaybeTupleResponseType](TemplateMaybeTupleResponseType.Inp)
-        case "rdp" => Right[DecodingFailure, TemplateMaybeTupleResponseType](TemplateMaybeTupleResponseType.Rdp)
-        case _ =>
-          Left[DecodingFailure, TemplateMaybeTupleResponseType](
-            DecodingFailure(
-              DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-              c.downField("type")
-            )
-          )
-      }
-      content <- c.downField("content").as[Option[JsonTuple]]
-    } yield TemplateMaybeTupleResponse(request, tpe, content)
-
-  given Encoder[TemplateSeqTupleResponse] = r =>
+    /* The Encoder given instance for the TemplateSeqTupleResponse trait. */
+  private given Encoder[TemplateSeqTupleResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> (r.tpe match {
@@ -141,85 +80,32 @@ object Serializers {
       "content" -> r.content.asJson
     )
 
-  given Decoder[TemplateSeqTupleResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTemplate]
-      tpe <- c.downField("type").as[String].flatMap {
-        case "inAll" => Right[DecodingFailure, TemplateSeqTupleResponseType](TemplateSeqTupleResponseType.InAll)
-        case "rdAll" => Right[DecodingFailure, TemplateSeqTupleResponseType](TemplateSeqTupleResponseType.RdAll)
-        case _ =>
-          Left[DecodingFailure, TemplateSeqTupleResponseType](
-            DecodingFailure(
-              DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-              c.downField("type")
-            )
-          )
-      }
-      content <- c.downField("content").as[Seq[JsonTuple]]
-    } yield TemplateSeqTupleResponse(request, tpe, content)
-
-  given Encoder[TemplateResponse] = r =>
+    /* The Encoder given instance for the TemplateResponse trait. */
+  private given Encoder[TemplateResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> "no".asJson,
       "content" -> ().asJson
     )
 
-  given Decoder[TemplateResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTemplate]
-      _ <- c
-        .downField("type")
-        .as[String]
-        .filterOrElse(
-          _ === "no",
-          DecodingFailure(
-            DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-            c.downField("type")
-          )
-        )
-      _ <- c.downField("content").as[Unit]
-    } yield TemplateResponse(request)
-
-  given Encoder[TemplateBooleanResponse] = r =>
+    /* The Encoder given instance for the TemplateBooleanResponse trait. */
+  private given Encoder[TemplateBooleanResponse] = r =>
     Json.obj(
       "request" -> r.request.asJson,
       "type" -> "nop".asJson,
       "content" -> r.content.asJson
     )
 
-  given Decoder[TemplateBooleanResponse] = c =>
-    for {
-      request <- c.downField("request").as[JsonTemplate]
-      _ <- c
-        .downField("type")
-        .as[String]
-        .filterOrElse(
-          _ === "nop",
-          DecodingFailure(
-            DecodingFailure.Reason.CustomReason("The value for the type field was not valid"),
-            c.downField("type")
-          )
-        )
-      content <- c.downField("content").as[Boolean]
-    } yield TemplateBooleanResponse(request, content)
-
-  given Encoder[ConnectionSuccessResponse] = r =>
+    /* The Encoder given instance for the ConnectionSuccessResponse trait. */
+  private given Encoder[ConnectionSuccessResponse] = r =>
     Json.obj(
       "clientId" -> r.clientId.asJson
     )
 
-  given Decoder[ConnectionSuccessResponse] = Decoder.forProduct1("clientId")(ConnectionSuccessResponse.apply)
+    /* The Encoder given instance for the ConnectionSuccessResponse trait. */
+  private given Encoder[MergeSuccessResponse] = r => Json.obj("oldClientId" -> r.oldClientId.asJson)
 
-  given Encoder[MergeSuccessResponse] = r =>
-    Json.obj(
-      "newClientId" -> r.newClientId.asJson,
-      "oldClientId" -> r.oldClientId.asJson
-    )
-
-  given Decoder[MergeSuccessResponse] =
-    Decoder.forProduct2("newClientId", "oldClientId")(MergeSuccessResponse.apply)
-
+    /** The [[Encoder]] given instance for the general [[Response]] trait, working for all of its sub-types. */
   given Encoder[Response] = {
     case r: TupleResponse => r.asJson
     case r: SeqTupleResponse => r.asJson
@@ -231,15 +117,4 @@ object Serializers {
     case r: ConnectionSuccessResponse => r.asJson
     case r: MergeSuccessResponse => r.asJson
   }
-
-  given Decoder[Response] = r =>
-    r.as[TupleResponse]
-      .orElse(r.as[SeqTupleResponse])
-      .orElse(r.as[TemplateResponse])
-      .orElse(r.as[TemplateBooleanResponse])
-      .orElse(r.as[TemplateMaybeTupleResponse])
-      .orElse(r.as[TemplateSeqTupleResponse])
-      .orElse(r.as[TemplateTupleResponse])
-      .orElse(r.as[ConnectionSuccessResponse])
-      .orElse(r.as[MergeSuccessResponse])
 }

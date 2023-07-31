@@ -22,9 +22,9 @@
 package io.github.cakelier
 package tuples.space.server.response
 
-import tuples.space.*
-
 import java.util.UUID
+
+import tuples.space.*
 
 /** A response that a [[io.github.cakelier.tuples.space.client.JsonTupleSpace]] can receive from its server.
   *
@@ -329,9 +329,6 @@ private[server] object Response {
     */
   sealed trait MergeSuccessResponse extends Response {
 
-      /** Returns the client id of the client that sent the [[Request]] to change its previously current id into its old one. */
-    val newClientId: UUID
-
     /** Returns the client id of the client that sent the [[Request]] to change its previously current id into its old one before
       * it was forced to disconnect.
       */
@@ -342,19 +339,17 @@ private[server] object Response {
   object MergeSuccessResponse {
 
     /* Implementation of the MergeSuccessResponse trait. */
-    final private case class MergeSuccessResponseImpl(newClientId: UUID, oldClientId: UUID) extends MergeSuccessResponse
+    final private case class MergeSuccessResponseImpl(oldClientId: UUID) extends MergeSuccessResponse
 
-      /** Creates a new instance of the [[MergeSuccessResponse]] trait, given the current id and the id before the disconnection
+      /** Creates a new instance of the [[MergeSuccessResponse]] trait, given the id before the disconnection
         * of the client that sent the [[MergeRequest]] associated with this [[MergeSuccessResponse]].
         *
-        * @param newClientId
-        *   the previously current id of the client that sent the associated [[MergeRequest]]
         * @param oldClientId
         *   the id of the client that sent the associated [[MergeRequest]] before it was forced to disconnect
         * @return
         *   a new [[MergeSuccessResponse]] instance
         */
-    def apply(newClientId: UUID, oldClientId: UUID): MergeSuccessResponse = MergeSuccessResponseImpl(newClientId, oldClientId)
+    def apply(oldClientId: UUID): MergeSuccessResponse = MergeSuccessResponseImpl(oldClientId)
   }
 }
 

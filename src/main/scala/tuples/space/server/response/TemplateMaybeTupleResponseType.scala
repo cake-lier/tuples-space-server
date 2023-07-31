@@ -24,7 +24,7 @@ package tuples.space.server.response
 
 /** The enum representing all the different types of operations that can receive a result using a [[TemplateMaybeTupleResponse]].
   */
-private[client] enum TemplateMaybeTupleResponseType {
+private[server] enum TemplateMaybeTupleResponseType {
 
   /** The enum instance representing the "inp" operation. */
   case Inp extends TemplateMaybeTupleResponseType

@@ -30,7 +30,7 @@ import tuples.space.server.request.*
 import io.circe.syntax.*
 import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 
-object Serializers {
+private[server] object RequestSerializer {
 
   given Encoder[TupleRequest] = r =>
     Json.obj(

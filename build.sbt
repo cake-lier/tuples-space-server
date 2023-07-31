@@ -24,7 +24,8 @@ lazy val root = project
     name := "tuples-space-server",
     scalacOptions ++= Seq(
       "-deprecation",
-      "-Xfatal-warnings"
+      "-Xfatal-warnings",
+      "-no-indent"
     ),
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision,

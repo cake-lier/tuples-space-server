@@ -48,7 +48,7 @@ def main(): Unit =
 
         val server: Future[Http.ServerBinding] =
           Http()
-            .newServerAt(config.getString("TUPLES_SPACE_HOST_NAME"), config.getInt("TUPLES_SPACE_PORT_NUMBER"))
+            .newServerAt(config.getString("0.0.0.0"), config.getInt("TUPLES_SPACE_PORT_NUMBER"))
             .bind(TupleSpaceRoute(config.getString("TUPLES_SPACE_SERVICE_PATH"), tupleSpaceActor, ctx.system))
         ctx.system.whenTerminated.onComplete(_ => server.map(_.unbind()))
         Behaviors.empty

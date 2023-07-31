@@ -229,6 +229,38 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
       }
     }
 
+    describe("when receiving a rd request without any following out request") {
+      it("should leave the rd request pending until the matching out is received") {
+        val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
+        val responseProbe = testKit.createTestProbe[Response]()
+        val tuple1 = JsonTuple(1, "Example")
+        val tuple2 = JsonTuple(5.3, false)
+        val template1 = complete(int, string)
+        val template2 = complete(double, bool)
+
+        tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
+        tupleSpace ! TupleSpaceActorCommand.Rd(template1, responseProbe.ref)
+        responseProbe.expectNoMessage()
+        tupleSpace ! TupleSpaceActorCommand.In(template2, responseProbe.ref)
+        responseProbe.expectNoMessage()
+        tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
+        responseProbe.expectMessageType[ConnectionSuccessResponse]
+        tupleSpace ! TupleSpaceActorCommand.Out(tuple2, responseProbe.ref)
+        responseProbe.receiveMessages(2).toSet shouldBe Set(
+          TupleResponse(tuple2),
+          TemplateTupleResponse(template2, TemplateTupleResponseType.In, tuple2)
+        )
+        tupleSpace ! TupleSpaceActorCommand.Out(tuple1, responseProbe.ref)
+        responseProbe.receiveMessages(2).toSet shouldBe Set(
+          TupleResponse(tuple1),
+          TemplateTupleResponse(template1, TemplateTupleResponseType.Rd, tuple1)
+        )
+
+        testKit.stop(tupleSpace, 10.seconds)
+      }
+    }
+
     describe("when receiving an out request followed by matching no and in requests") {
       it("should return the no request completion") {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))

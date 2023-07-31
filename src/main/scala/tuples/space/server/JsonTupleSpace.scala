@@ -243,8 +243,8 @@ object JsonTupleSpace {
         .fold {
           pendingInRdRequests = pendingInRdRequests :+ (id, tt, PendingRequestType.In, promise)
         }(t => {
-          completeNoRequests(Seq(t))
           promise.success(t)
+          completeNoRequests(Seq(t))
         })
       promise.future
     }

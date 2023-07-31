@@ -22,206 +22,110 @@
 package io.github.cakelier
 package tuples.space.server
 
+import java.util.UUID
+import scala.annotation.tailrec
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import AnyOps.*
 import tuples.space.*
 import tuples.space.server.request.*
 import tuples.space.server.response.*
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.Behaviors
+import scala.concurrent.ExecutionContext
 
-import java.util.UUID
-import scala.annotation.tailrec
-
-@SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+/** The actor representing the handler of the tuple space, managing all operations, alongside the client management and the id
+  * assignment.
+  */
 object TupleSpaceActor {
 
-  private enum PendingRequestType {
-
-    case In extends PendingRequestType
-
-    case Rd extends PendingRequestType
-
-    case No extends PendingRequestType
-  }
-
-  private type Request = (UUID, JsonTemplate, PendingRequestType)
-
-  private def completeNoRequests(
-                                  connections: Map[UUID, ActorRef[Response]],
-                                  pendingTuples: Seq[JsonTuple],
-                                  pendingRequests: Seq[Request]
-  )(
-    tuplesToRemove: Seq[JsonTuple]
-  ): (Seq[JsonTuple], Seq[Request]) = {
-    val newPendingTuples = pendingTuples.diff(tuplesToRemove)
-    val newPendingRequests =
-      pendingRequests
-        .flatMap((id, template, tpe) =>
-          if (tpe === PendingRequestType.No && newPendingTuples.forall(t => !template.matches(t))) {
-            connections.get(id).foreach(_ ! TemplateResponse(template))
-            None
-          } else {
-            Some((id, template, tpe))
-          }
-        )
-    (newPendingTuples, newPendingRequests)
-  }
-
-  private def completeInRdRequests(
-    connections: Map[UUID, ActorRef[Response]],
-    pendingTuples: Seq[JsonTuple],
-    pendingRequests: Seq[Request]
-  )(
-    tupleToAdd: JsonTuple
-  ): (Seq[JsonTuple], Seq[Request]) = {
-    @tailrec
-    def _completeInRdRequests(remainingRequests: Seq[Request]): (Seq[JsonTuple], Seq[Request]) = remainingRequests match {
-      case (id, template, tpe) +: t =>
-        tpe match {
-          case PendingRequestType.In =>
-            connections.get(id).foreach(_ ! TemplateTupleResponse(template, TemplateTupleResponseType.In, tupleToAdd))
-            (pendingTuples, t)
-          case _ =>
-            connections.get(id).foreach(_ ! TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tupleToAdd))
-            _completeInRdRequests(t)
-        }
-      case e => (pendingTuples :+ tupleToAdd, e)
-    }
-
-    _completeInRdRequests(pendingRequests.filter((_, _, tpe) => tpe !== PendingRequestType.No))
-  }
-
+  /* The main behavior of this actor. */
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def main(
-    connections: Map[UUID, ActorRef[Response]],
-    pendingTuples: Seq[JsonTuple],
-    pendingRequests: Seq[Request]
-  ): Behavior[TupleSpaceActorCommand] = Behaviors.receiveMessage {
-    case TupleSpaceActorCommand.Out(id, tuple) =>
-      connections
-        .get(id)
-        .map(a => {
-          a ! TupleResponse(tuple)
-          val (newPendingTuples, newPendingRequests) = completeInRdRequests(connections, pendingTuples, pendingRequests)(tuple)
-          main(connections, newPendingTuples, newPendingRequests)
-        })
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.In(id, template) =>
-      connections
-        .get(id)
-        .map(a =>
-          pendingTuples.find(template.matches) match {
-            case Some(tuple) =>
-              a ! TemplateTupleResponse(template, TemplateTupleResponseType.In, tuple)
-              val (newPendingTuples, newPendingRequests) =
-                completeNoRequests(connections, pendingTuples, pendingRequests)(Seq(tuple))
-              main(connections, newPendingTuples, newPendingRequests)
-            case None => main(connections, pendingTuples, pendingRequests :+ (id, template, PendingRequestType.In))
-          }
-        )
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.Rd(id, template) =>
-      connections
-        .get(id)
-        .map(a =>
-          pendingTuples.find(template.matches) match {
-            case Some(tuple) =>
-              a ! TemplateTupleResponse(template, TemplateTupleResponseType.Rd, tuple)
-              Behaviors.same
-            case None => main(connections, pendingTuples, pendingRequests :+ (id, template, PendingRequestType.Rd))
-          }
-        )
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.No(id, template) =>
-      connections
-        .get(id)
-        .map(a =>
-          if (pendingTuples.forall(t => !template.matches(t))) {
-            a ! TemplateResponse(template)
-            Behaviors.same
-          } else {
-            main(connections, pendingTuples, pendingRequests :+ (id, template, PendingRequestType.No))
-          }
-        )
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.Inp(id, template) =>
-      connections
-        .get(id)
-        .map(a =>
-          pendingTuples.find(template.matches) match {
-            case t @ Some(tuple) =>
-              a ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, t)
-              val (newPendingTuples, newPendingRequests) =
-                completeNoRequests(connections, pendingTuples, pendingRequests)(Seq(tuple))
-              main(connections, newPendingTuples, newPendingRequests)
-            case _ =>
-              a ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, None)
-              Behaviors.same
-          }
-        )
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.Rdp(id, template) =>
-      connections
-        .get(id)
-        .foreach(
-          _ ! TemplateMaybeTupleResponse(
-            template,
-            TemplateMaybeTupleResponseType.Rdp,
-            pendingTuples.find(template.matches)
+    ctx: ActorContext[TupleSpaceActorCommand],
+    connections: Map[ActorRef[Response], UUID],
+    jsonTupleSpace: JsonTupleSpace
+  ): Behavior[TupleSpaceActorCommand] = {
+    given ExecutionContext = ctx.executionContext
+    Behaviors.receiveMessage {
+      case TupleSpaceActorCommand.Out(tuple, replyTo) =>
+        jsonTupleSpace.out(tuple)
+        replyTo ! TupleResponse(tuple)
+        Behaviors.same
+      case TupleSpaceActorCommand.In(template, replyTo) =>
+        connections
+          .get(replyTo)
+          .foreach(id =>
+            jsonTupleSpace
+              .in(template, id)
+              .onComplete(_.toOption.foreach(t => replyTo ! TemplateTupleResponse(template, TemplateTupleResponseType.In, t)))
           )
-        )
-      Behaviors.same
-    case TupleSpaceActorCommand.Nop(id, template) =>
-      connections.get(id).foreach(_ ! TemplateBooleanResponse(template, pendingTuples.forall(t => !template.matches(t))))
-      Behaviors.same
-    case TupleSpaceActorCommand.OutAll(id, tuples) =>
-      connections
-        .get(id)
-        .map(a => {
-          a ! SeqTupleResponse(tuples)
-          val (newPendingTuples, newPendingRequests) =
-            tuples.foldLeft((pendingTuples, pendingRequests))((a, t) => completeInRdRequests(connections, a._1, a._2)(t))
-          main(connections, newPendingTuples, newPendingRequests)
-        })
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.InAll(id, template) =>
-      connections
-        .get(id)
-        .map(a => {
-          val tuples = pendingTuples.filter(template.matches)
-          a ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, tuples)
-          val (newPendingTuples, newPendingRequests) = completeNoRequests(connections, pendingTuples, pendingRequests)(tuples)
-          main(connections, newPendingTuples, newPendingRequests)
-        })
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.RdAll(id, template) =>
-      connections
-        .get(id)
-        .foreach(
-          _ ! TemplateSeqTupleResponse(
-            template,
-            TemplateSeqTupleResponseType.RdAll,
-            pendingTuples.filter(template.matches)
+        Behaviors.same
+      case TupleSpaceActorCommand.Rd(template, replyTo) =>
+        connections
+          .get(replyTo)
+          .foreach(id =>
+            jsonTupleSpace
+              .rd(template, id)
+              .onComplete(_.toOption.foreach(t => replyTo ! TemplateTupleResponse(template, TemplateTupleResponseType.Rd, t)))
           )
-        )
-      Behaviors.same
-    case TupleSpaceActorCommand.Enter(id, actor) =>
-      actor ! ConnectionSuccessResponse(id)
-      main(connections + (id -> actor), pendingTuples, pendingRequests)
-    case TupleSpaceActorCommand.MergeIds(id, oldId) =>
-      connections
-        .get(id)
-        .map(a => {
-          a ! MergeSuccessResponse(id, oldId)
-          main(connections - id + (oldId -> a), pendingTuples, pendingRequests)
-        })
-        .getOrElse(Behaviors.same)
-    case TupleSpaceActorCommand.Exit(id, success) =>
-      main(connections - id, pendingTuples, if (success) pendingRequests.filter(_._1 !== id) else pendingRequests)
+        Behaviors.same
+      case TupleSpaceActorCommand.No(template, replyTo) =>
+        connections
+          .get(replyTo)
+          .foreach(id =>
+            jsonTupleSpace
+              .no(template, id)
+              .onComplete(_.toOption.foreach(_ => replyTo ! TemplateResponse(template)))
+          )
+        Behaviors.same
+      case TupleSpaceActorCommand.Inp(template, replyTo) =>
+        replyTo ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Inp, jsonTupleSpace.inp(template))
+        Behaviors.same
+      case TupleSpaceActorCommand.Rdp(template, replyTo) =>
+        replyTo ! TemplateMaybeTupleResponse(template, TemplateMaybeTupleResponseType.Rdp, jsonTupleSpace.rdp(template))
+        Behaviors.same
+      case TupleSpaceActorCommand.Nop(template, replyTo) =>
+        replyTo ! TemplateBooleanResponse(template, jsonTupleSpace.nop(template))
+        Behaviors.same
+      case TupleSpaceActorCommand.OutAll(tuples, replyTo) =>
+        jsonTupleSpace.outAll(tuples: _*)
+        replyTo ! SeqTupleResponse(tuples)
+        Behaviors.same
+      case TupleSpaceActorCommand.InAll(template, replyTo) =>
+        replyTo ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.InAll, jsonTupleSpace.inAll(template))
+        Behaviors.same
+      case TupleSpaceActorCommand.RdAll(template, replyTo) =>
+        replyTo ! TemplateSeqTupleResponse(template, TemplateSeqTupleResponseType.RdAll, jsonTupleSpace.rdAll(template))
+        Behaviors.same
+      case TupleSpaceActorCommand.Enter(replyTo) =>
+        val id: UUID = UUID.randomUUID()
+        replyTo ! ConnectionSuccessResponse(id)
+        main(ctx, connections + (replyTo -> id), jsonTupleSpace)
+      case TupleSpaceActorCommand.MergeIds(oldId, replyTo) =>
+        replyTo ! MergeSuccessResponse(oldId)
+        main(ctx, connections - replyTo + (replyTo -> oldId), jsonTupleSpace)
+      case TupleSpaceActorCommand.Exit(success, replyTo) =>
+        connections
+          .get(replyTo)
+          .fold(main(ctx, connections - replyTo, jsonTupleSpace))(id => {
+            if (success) {
+              jsonTupleSpace.remove(id)
+            }
+            main(ctx, connections - replyTo, jsonTupleSpace)
+          })
+    }
   }
 
+  /** Creates a new tuple space actor, given the root actor of its actor system to which signal its startup.
+    *
+    * @param root
+    *   the root actor of the actor system of this actor
+    * @return
+    *   a new tuple space actor
+    */
   def apply(root: ActorRef[Unit]): Behavior[TupleSpaceActorCommand] = Behaviors.setup(ctx => {
     root ! ()
-    main(Map.empty, Seq.empty, Seq.empty)
+    main(ctx, Map.empty, JsonTupleSpace())
   })
 }

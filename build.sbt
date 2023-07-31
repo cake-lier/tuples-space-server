@@ -52,11 +52,17 @@ lazy val root = project
       "Matteo Castellucci"
     )),
     assembly / assemblyJarName := "main.jar",
-    assembly / mainClass := Some("io.github.cakelier.main"),
+    assembly / mainClass := Some("io.github.cakelier.tuples.space.server.main"),
     docker / dockerfile := NativeDockerfile(file("Dockerfile")),
-    docker / imageNames := Seq(ImageName(
-      namespace = Some("matteocastellucci3"),
-      repository = name.value,
-      tag = Some(version.value)
-    ))
+    docker / imageNames := Seq(
+      ImageName(
+        namespace = Some("matteocastellucci3"),
+        repository = name.value,
+        tag = Some(version.value)
+      ),
+      ImageName(
+        namespace = Some("matteocastellucci3"),
+        repository = name.value
+      ),
+    )
   )

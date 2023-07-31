@@ -22,15 +22,18 @@
 package io.github.cakelier
 package tuples.space.server
 
+import java.nio.file.Paths
+import java.util.concurrent.ForkJoinPool
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
 import akka.actor.ClassicActorSystemProvider
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
-import com.typesafe.config.{Config, ConfigFactory}
-
-import java.nio.file.Paths
-import java.util.concurrent.ForkJoinPool
-import scala.concurrent.{ExecutionContext, Future}
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 /** The main entrypoint for the tuple space server. */
 @main

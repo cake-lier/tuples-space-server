@@ -57,7 +57,7 @@ class TupleSpaceActorTest extends AnyFunSpec with BeforeAndAfterAll {
         val tupleSpace = testKit.spawn(TupleSpaceActor(testKit.createTestProbe[Unit]().ref))
         val responseProbe = testKit.createTestProbe[Response]()
         val template = complete(int, string)
-        
+
         tupleSpace ! TupleSpaceActorCommand.Enter(responseProbe.ref)
         responseProbe.expectMessageType[ConnectionSuccessResponse]
         tupleSpace ! TupleSpaceActorCommand.In(template, responseProbe.ref)
